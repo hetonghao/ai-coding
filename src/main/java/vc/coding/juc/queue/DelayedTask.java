@@ -14,11 +14,11 @@ import java.util.concurrent.TimeUnit;
  * @since 2020/3/6 22:06
  */
 @Data
-public class DelayedOrder implements Delayed {
+public class DelayedTask<T> implements Delayed {
     /**
      * 记录id
      */
-    private Long id;
+    private T id;
     /**
      * 创建时间
      */
@@ -28,13 +28,13 @@ public class DelayedOrder implements Delayed {
      */
     private LocalDateTime expireTime;
 
-    public DelayedOrder(Long id, long delay, TimeUnit timeUnit) {
+    public DelayedTask(T id, long delay, TimeUnit timeUnit) {
         this.id = id;
         this.createTime = LocalDateTime.now();
         this.expireTime = this.createTime.plusNanos(timeUnit.toNanos(delay));
     }
 
-    public DelayedOrder(Long id, LocalDateTime expireTime) {
+    public DelayedTask(T id, LocalDateTime expireTime) {
         this.id = id;
         this.createTime = LocalDateTime.now();
         this.expireTime = expireTime;
@@ -57,6 +57,6 @@ public class DelayedOrder implements Delayed {
 
     @Override
     public int compareTo(Delayed delayed) {
-        return this.expireTime.compareTo(((DelayedOrder) delayed).getExpireTime());
+        return this.expireTime.compareTo(((DelayedTask) delayed).getExpireTime());
     }
 }
