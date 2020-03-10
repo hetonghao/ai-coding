@@ -14,11 +14,13 @@ public class DelayedExecutorMain {
     }
 
     private void start() {
-        DelayedExecutor<DelayedTask<Long>> delayedExecutor = new DelayedExecutor<>();
-        delayedExecutor.start((delayedOrder) -> {
-            consume(delayedOrder.getReference());
+        DelayedExecutor<DelayedTask<Long>> delayedExecutor = new DelayedExecutor<>(delayedTask -> {
+            consume(delayedTask.getReference());
         });
-        delayedExecutor.putTask(new DelayedTask<>(1L, 2, TimeUnit.SECONDS));
+        long id = 0;
+        delayedExecutor.putTask(new DelayedTask<>(++id, 3, TimeUnit.SECONDS));
+        delayedExecutor.putTask(new DelayedTask<>(++id, 3, TimeUnit.SECONDS));
+        delayedExecutor.putTask(new DelayedTask<>(++id, 5, TimeUnit.SECONDS));
     }
 
     private void consume(Long id) {
