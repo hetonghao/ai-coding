@@ -7,6 +7,7 @@ package vc.coding.jvm;
  * -XX:+HeapDumpOnOutOfMemoryError dump 内存溢出异常
  * -XX:MetaspaceSize=10m 元空间大小=10m
  * -XX:MaxMetaspaceSize=10m 最大元空间大小=10m
+ * -XX:UseSerialGC 使用串行收集器
  *
  * @author HeTongHao
  * @since 2020/3/9 16:02
