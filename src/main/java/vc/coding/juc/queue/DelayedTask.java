@@ -1,43 +1,46 @@
 package vc.coding.juc.queue;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 延时对象
+ * 延时任务
  *
  * @author HeTongHao
  * @since 2020/3/6 22:06
  */
-@Data
 public class DelayedTask<T> implements Delayed {
     /**
-     * 记录id
+     * 引用
      */
-    private T id;
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+    private T reference;
     /**
      * 到期时间
      */
-    private LocalDateTime expireTime;
+    private long expireTime;
 
-    public DelayedTask(T id, long delay, TimeUnit timeUnit) {
-        this.id = id;
-        this.createTime = LocalDateTime.now();
-        this.expireTime = this.createTime.plusNanos(timeUnit.toNanos(delay));
+    public DelayedTask(T reference, long delay, TimeUnit timeUnit) {
+        this.reference = reference;
+        this.expireTime = System.currentTimeMillis() + timeUnit.toMillis(delay);
     }
 
-    public DelayedTask(T id, LocalDateTime expireTime) {
-        this.id = id;
-        this.createTime = LocalDateTime.now();
-        this.expireTime = expireTime;
+    public DelayedTask(T reference, LocalDateTime expireTime) {
+        this.reference = reference;
+        this.expireTime = parseToTimestamp(expireTime);
+    }
+
+    public T getReference() {
+        return reference;
+    }
+
+    public void setReference(T reference) {
+        this.reference = reference;
+    }
+
+    public long getExpireTime() {
+        return expireTime;
     }
 
     /**
@@ -46,17 +49,17 @@ public class DelayedTask<T> implements Delayed {
      * @param localDateTime
      * @return
      */
-    public long parseToTimestamp(LocalDateTime localDateTime) {
+    private long parseToTimestamp(LocalDateTime localDateTime) {
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
     @Override
     public long getDelay(TimeUnit unit) {
-        return parseToTimestamp(this.expireTime) - parseToTimestamp(LocalDateTime.now());
+        return this.expireTime - System.currentTimeMillis();
     }
 
     @Override
     public int compareTo(Delayed delayed) {
-        return this.expireTime.compareTo(((DelayedTask) delayed).getExpireTime());
+        return Long.compare(this.expireTime, ((DelayedTask) delayed).getExpireTime());
     }
 }

@@ -52,7 +52,7 @@ public class Main {
             while (true) {
                 try {
                     DelayedTask<Long> delayedOrder = delayedOrders.take();
-                    System.out.println(delayedOrder.getId() + "订单被消费");
+                    System.out.println(delayedOrder.getReference() + "订单被消费");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
