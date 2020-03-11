@@ -3,6 +3,7 @@ package vc.coding.juc;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 
 /**
  * @author HeTongHao
@@ -10,32 +11,47 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Locks {
     private static java.util.concurrent.locks.Lock lock = new ReentrantLock();
-    private static CopyOnWriteArraySet set = new CopyOnWriteArraySet();
+    private static CopyOnWriteArraySet<Long> set = new CopyOnWriteArraySet();
     private static AtomicInteger atomicInteger = new AtomicInteger();
 
     public static void main(String[] args) {
         for (long i = 1; i <= 100; i++) {
             new Thread(() -> {
-                xx(1L);
-            }, String.valueOf(i)).start();
-            new Thread(() -> {
-                xx(2L);
+                exec(1L);
             }, String.valueOf(i)).start();
         }
     }
 
-    private static void xx(Long id) {
-        if (set.contains(id)) {
-            System.out.println("id:" + id + ",正在操作,跳出!");
-            return;
+    private static void exec(Long id) {
+        try {
+            if (lock(cId -> set.contains(cId), () -> set.add(id), id)) {
+                System.out.println("id:" + id + ",执行业务");
+            }
+        } finally {
+            set.remove(id);
+        }
+    }
+
+    /**
+     * @param excludeCondition 排除条件
+     * @param runnable         修改名单
+     * @param id
+     * @return
+     */
+    private static boolean lock(Predicate<Long> excludeCondition, Runnable runnable, Long id) {
+        //
+        if (excludeCondition.test(id)) {
+            return false;
         } else {
             lock.lock();
             try {
-                set.add(id);
-                System.out.println("id:" + id + ",执行业务" + atomicInteger.addAndGet(1));
+                if (excludeCondition.test(id)) {
+                    return false;
+                }
+                runnable.run();
+                return true;
             } finally {
                 lock.unlock();
-                set.remove(id);
             }
         }
     }
