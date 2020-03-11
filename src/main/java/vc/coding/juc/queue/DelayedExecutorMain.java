@@ -1,5 +1,7 @@
 package vc.coding.juc.queue;
 
+import lombok.SneakyThrows;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -8,19 +10,27 @@ import java.util.concurrent.TimeUnit;
  */
 public class DelayedExecutorMain {
 
+//    AtomicInteger count = new AtomicInteger();
+
+    private final DelayedExecutor delayedExecutor = new DelayedExecutor<DelayedTask<Long>>().start(delayedTask -> {
+        consume(delayedTask.getReference());
+    }).executeOnce(()->{
+            System.out.println("拉起任务");
+    });
+
     public static void main(String[] args) {
         DelayedExecutorMain delayedExecutorMain = new DelayedExecutorMain();
         delayedExecutorMain.start();
     }
 
+    @SneakyThrows
     private void start() {
-        DelayedExecutor<DelayedTask<Long>> delayedExecutor = new DelayedExecutor<>(delayedTask -> {
-            consume(delayedTask.getReference());
-        });
         long id = 0;
-        delayedExecutor.putTask(new DelayedTask<>(++id, 3, TimeUnit.SECONDS));
-        delayedExecutor.putTask(new DelayedTask<>(++id, 3, TimeUnit.SECONDS));
-        delayedExecutor.putTask(new DelayedTask<>(++id, 5, TimeUnit.SECONDS));
+        for (int i = 1; i <= 1000; i++) {
+            delayedExecutor.putTask(new DelayedTask<>(++id, 3, TimeUnit.SECONDS));
+        }
+        TimeUnit.SECONDS.sleep(3);
+        delayedExecutor.stop();
     }
 
     private void consume(Long id) {
