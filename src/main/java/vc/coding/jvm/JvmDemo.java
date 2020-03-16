@@ -1,16 +1,18 @@
 package vc.coding.jvm;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author HeTongHao
  * @since 2020/3/11 14:25
  */
 public class JvmDemo {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         System.out.println(JvmDemo.class.getClassLoader());
         System.out.println(JvmDemo.class.getClassLoader().getParent());
         System.out.println(JvmDemo.class.getClassLoader().getParent());
+        TimeUnit.SECONDS.sleep(1000);
     }
 }
 

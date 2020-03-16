@@ -1,10 +1,6 @@
 package vc.coding.juc.queue;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
-
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -19,15 +15,12 @@ import java.util.function.Consumer;
  * @author HeTongHao
  * @since 2020/3/10 10:27
  */
-@Data
-@Accessors(chain = true)
 public class DelayedExecutor<Task extends DelayedTask> {
     private ExecutorService executorService;
     private DelayQueue<Task> delayedTasks = new DelayQueue<>();
     private Lock lock = new ReentrantLock();
     private Condition condition = lock.newCondition();
     private volatile boolean isStart;
-    private AtomicInteger startTimes = new AtomicInteger();
 
     private DelayedExecutor() {
     }
@@ -65,6 +58,14 @@ public class DelayedExecutor<Task extends DelayedTask> {
             , TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
         this(execute, new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue
                 , threadFactory, new ThreadPoolExecutor.CallerRunsPolicy()));
+    }
+
+    public boolean isStart() {
+        return isStart;
+    }
+
+    public DelayQueue<Task> getDelayedTasks() {
+        return delayedTasks;
     }
 
     /**
@@ -136,6 +137,17 @@ public class DelayedExecutor<Task extends DelayedTask> {
      */
     public DelayedExecutor<Task> executeOnce(Runnable execute) {
         executorService.execute(execute);
+        return this;
+    }
+
+    /**
+     * 执行一次自定义任务
+     *
+     * @param execute 执行过程,有本执行器作为参数使用
+     * @return
+     */
+    public DelayedExecutor<Task> executeOnce(Consumer<DelayedExecutor<Task>> execute) {
+        executorService.execute(() -> execute.accept(this));
         return this;
     }
 }

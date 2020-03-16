@@ -12,7 +12,7 @@ import java.util.concurrent.*;
  * @author HeTongHao
  * @since 2020/3/6 22:58
  */
-public class Main {
+public class DelayedTaskMain {
     private static ExecutorService executorService = new ThreadPoolExecutor(2, 2, 0
             , TimeUnit.SECONDS, new ArrayBlockingQueue<>(1)
             , Executors.privilegedThreadFactory(), new ThreadPoolExecutor.AbortPolicy());

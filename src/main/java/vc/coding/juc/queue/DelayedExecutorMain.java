@@ -13,11 +13,10 @@ public class DelayedExecutorMain {
 
     AtomicInteger count = new AtomicInteger();
 
-    private final DelayedExecutor delayedExecutor = new DelayedExecutor<DelayedTask<Long>>(delayedTask -> {
-//        consume(delayedTask.getReference());
-        System.out.println(delayedTask.getReference() + ",设备离线");
-    }).start().executeOnce(()->{
-
+    private final DelayedExecutor<DelayedTask<Long>> delayedExecutor = new DelayedExecutor<DelayedTask<Long>>(delayedTask -> {
+        consume(delayedTask.getReference());
+//        System.out.println(delayedTask.getReference() + ",设备离线");
+    }).start().executeOnce(() -> {
     });
 
     public static void main(String[] args) {
@@ -25,19 +24,19 @@ public class DelayedExecutorMain {
         delayedExecutorMain.start();
     }
 
-    int testCont = 1_0000_0000;
+    int testCont = 1_00000;
     long startTime;
 
     @SneakyThrows
     private void start() {
         long id = 0;
         for (int i = 1; i <= testCont; i++) {
-            delayedExecutor.putTask(new DelayedTask<>(++id, 30000, TimeUnit.SECONDS));
+            delayedExecutor.putTask(new DelayedTask<>(++id, 3, TimeUnit.SECONDS));
         }
-//        TimeUnit.SECONDS.sleep(3);
-//        delayedExecutor.stop();
-//        TimeUnit.SECONDS.sleep(3);
-//        delayedExecutor.open();
+        TimeUnit.SECONDS.sleep(3);
+        delayedExecutor.stop();
+        TimeUnit.SECONDS.sleep(3);
+        delayedExecutor.start();
     }
 
     private void consume(Long id) {

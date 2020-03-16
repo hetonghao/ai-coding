@@ -28,7 +28,7 @@ public class DelayedTask<T> implements Delayed {
 
     public DelayedTask(T reference, LocalDateTime expireTime) {
         this.reference = reference;
-        this.expireTime = parseToTimestamp(expireTime);
+        this.expireTime = expireTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
     public T getReference() {
@@ -41,16 +41,6 @@ public class DelayedTask<T> implements Delayed {
 
     public long getExpireTime() {
         return expireTime;
-    }
-
-    /**
-     * 将LocalDateTime转为时间戳
-     *
-     * @param localDateTime
-     * @return
-     */
-    private long parseToTimestamp(LocalDateTime localDateTime) {
-        return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
     @Override
